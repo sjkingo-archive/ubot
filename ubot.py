@@ -13,6 +13,7 @@ class IRCBot(object):
     server_callbacks = None
 
     user_modes = set()
+    failed_nickchanges = 0
 
     def __init__(self, server='localhost', port=6667, nick='ubot'):
         self.irc_config = {
@@ -45,7 +46,7 @@ class IRCBot(object):
                 (self.irc_config['server'], self.irc_config['port']))
         self.fp = self.sock.makefile('rw', 0)
         print('Connected to %s:%d' % (self.irc_config['server'], self.irc_config['port']))
-        self.send('NICK %s' % self.irc_config['nick'])
+        self.change_nick(self.irc_config['nick'])
         self.send('USER %s 8 * :%s' % (self.irc_config['user'], self.irc_config['name']))
 
     def dispatch(self):
@@ -60,13 +61,17 @@ class IRCBot(object):
             else:
                 self._handle_line(l)
 
+    def change_nick(self, new_nick):
+        self.irc_config['nick'] = new_nick
+        self.send('NICK %s' % new_nick)
+
     def quit(self, graceful=True, msg='Goodbye'):
         if graceful:
             self.send('QUIT :%s' % msg)
             print('Quitting (%s)' % msg)
         exit(0)
 
-    _startup_prefix_patt = re.compile(r'[0-9]{3}')
+    _numeric_msg_patt = re.compile(r'[0-9]{3}')
     def _handle_line(self, line):
         if len(line) == 0:
             print('Server closed connection, quitting')
@@ -78,12 +83,10 @@ class IRCBot(object):
         else:
             key = parts[0]
         
-        # special case for startup messages
-        if self._startup_prefix_patt.match(key):
-            # do nothing
-            return
+        # special case for numeric messages
+        if self._numeric_msg_patt.match(key):
+            key = 'numeric_%s' % key
 
-        # otherwise, dispatch this to a callback
         callback = getattr(self.server_callbacks, key.lower(), None)
         if callback is not None:
             callback(self, parts, line)
