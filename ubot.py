@@ -12,6 +12,8 @@ class IRCBot(object):
 
     server_callbacks = None
 
+    user_modes = set()
+
     def __init__(self, server='localhost', port=6667, nick='ubot'):
         self.irc_config = {
                 'server': server,
