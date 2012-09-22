@@ -56,12 +56,14 @@ class IRCBot(object):
                 print('Socket timeout (server not responding), quitting')
                 self.quit(graceful=False) # don't send quit message
             except KeyboardInterrupt:
-                print('Quitting')
-                self.quit()
+                self.quit(msg='I was sent SIGINT')
             else:
                 self._handle_line(l)
 
-    def quit(self, graceful=True):
+    def quit(self, graceful=True, msg='Goodbye'):
+        if graceful:
+            self.send('QUIT :%s' % msg)
+            print('Quitting (%s)' % msg)
         exit(0)
 
     _startup_prefix_patt = re.compile(r'[0-9]{3}')
