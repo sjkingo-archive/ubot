@@ -1,4 +1,5 @@
 from __future__ import print_function
+from clint.textui import puts, colored
 import re
 import socket
 
@@ -38,7 +39,6 @@ class IRCBot(object):
 
     def readline(self):
         l = self.fp.readline().strip()
-        print(' << %s' % l)
         return l
 
     def connect(self):
@@ -91,4 +91,4 @@ class IRCBot(object):
         if callback is not None:
             callback(self, parts, line)
         else:
-            print('Unhandled server command %s' % key)
+            puts(colored.red(' << %s' % line))
