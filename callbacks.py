@@ -1,4 +1,5 @@
 import re
+from clint.textui import puts, colored
 
 import util
 
@@ -39,3 +40,7 @@ class ServerCallbacks(object):
             new_nick = '%s%d' % (prefix, suffix)
         print('Server reports nick %s is in use, trying %s' % (current, new_nick))
         server.change_nick(new_nick)
+
+    def notice(self, server, parts, line):
+        l = line.split(':***')
+        puts(colored.blue('Server notice: %s' % l[1]))
