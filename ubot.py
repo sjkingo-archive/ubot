@@ -1,11 +1,16 @@
 from __future__ import print_function
+import re
 import socket
+
+import callbacks
 
 VERSION = '0.1'
 
 class IRCBot(object):
     sock = None
     fp = None
+
+    server_callbacks = None
 
     def __init__(self, server='localhost', port=6667, nick='ubot'):
         self.irc_config = {
@@ -15,7 +20,14 @@ class IRCBot(object):
                 'user': nick,
                 'name': 'ubot',
         }
+        self.init_callbacks()
         print('ubot v%s starting up' % VERSION)
+
+    def init_callbacks(self):
+        if self.server_callbacks is not None:
+            del self.server_callbacks
+            reload(callbacks)
+        self.server_callbacks = callbacks.ServerCallbacks()
 
     def send(self, line):
         print(' >> %s' % line)
@@ -50,8 +62,26 @@ class IRCBot(object):
     def quit(self, graceful=True):
         exit(0)
 
+    _startup_prefix_patt = re.compile(r'[0-9]{3}')
     def _handle_line(self, line):
         if len(line) == 0:
             print('Server closed connection, quitting')
             self.quit(graceful=False) # don't send quit message
-        pass
+
+        parts = line.split(' ')
+        if parts[0][0] == ':':
+            key = parts[1]
+        else:
+            key = parts[0]
+        
+        # special case for startup messages
+        if self._startup_prefix_patt.match(key):
+            # do nothing
+            return
+
+        # otherwise, dispatch this to a callback
+        callback = getattr(self.server_callbacks, key.lower(), None)
+        if callback is not None:
+            callback(self, parts, line)
+        else:
+            print('Unhandled server command %s' % key)
