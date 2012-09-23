@@ -10,3 +10,13 @@ def reload(server, req):
     server.send_privmsg(req['nick'], 'Reloaded the following modules:')
     for m in mods:
         server.send_privmsg(req['nick'], '   %s' % m)
+
+@restricted
+def authlist(server, req):
+    server.send_privmsg(req['nick'], 'Authorized users of this bot are:')
+    for i in server.irc_config['authorized_users']:
+        if i == req['usermask']:
+            suffix = ' (you)'
+        else:
+            suffix = ''
+        server.send_privmsg(req['nick'], '   %s%s' % (i, suffix))
