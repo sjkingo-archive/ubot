@@ -16,3 +16,14 @@ def update_modes(mode_set, line):
                 mode_set.add(i)
             else:
                 mode_set.remove(i)
+
+def explode_from(f):
+    """Explodes a from field in the form of ':nick!~user@host' into a tuple
+    of the form (nick, user, host)"""
+    parts = f.split('!')
+    nick = parts[0][1:]
+    user = parts[1].split('@')[0]
+    if user[0] == '~':
+        user = user[1:]
+    host = parts[1].split('@')[1]
+    return (nick, user, host)

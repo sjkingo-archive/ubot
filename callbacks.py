@@ -1,3 +1,4 @@
+import datetime
 import re
 from clint.textui import puts, colored
 
@@ -56,3 +57,9 @@ class ServerCallbacks(object):
         pass
     numeric_372 = numeric_375
     numeric_376 = numeric_375
+
+    def privmsg(self, server, parts, line):
+        now = datetime.datetime.now().strftime('%H:%M')
+        nick, user, host = util.explode_from(parts[0])
+        msg = ' '.join(parts[3:])[1:]
+        puts(colored.yellow('%s <%s@%s> %s' % (now, nick, host, msg)))
