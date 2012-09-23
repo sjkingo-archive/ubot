@@ -29,9 +29,9 @@ def explode_from(f):
     return (nick, user, host)
 
 def restricted(func):
-    def _check_authorized(server, req):
+    def _check_authorized(server, req, *args):
         if req['usermask'] in server.irc_config['authorized_users']:
-            func(server, req)
+            func(server, req, *args)
         else:
             server.send_privmsg(req['nick'], 'Access denied: you are not on the authorized users list.')
     return _check_authorized
