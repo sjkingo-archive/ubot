@@ -44,3 +44,15 @@ class ServerCallbacks(object):
     def notice(self, server, parts, line):
         l = line.split(':***')
         puts(colored.blue('Server notice: %s' % l[1]))
+
+    def numeric_005(self, server, parts, line):
+        """Server supports"""
+        supports = line.split(' :are')[0].split(' ')[3:]
+        server.server_supports.append(supports)
+        puts(colored.blue('This server supports: %s' % supports))
+
+    def numeric_375(self, server, parts, line):
+        """MOTD - ignore"""
+        pass
+    numeric_372 = numeric_375
+    numeric_376 = numeric_375

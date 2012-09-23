@@ -15,6 +15,7 @@ class IRCBot(object):
 
     user_modes = set()
     failed_nickchanges = 0
+    server_supports = []
 
     def __init__(self, server='localhost', port=6667, nick='ubot'):
         self.irc_config = {
