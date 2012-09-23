@@ -72,10 +72,6 @@ class IRCBot(object):
         self.change_nick(self.irc_config['nick'])
         self.send('USER %s 8 * :%s' % (self.irc_config['user'], self.irc_config['name']))
 
-        for i in self.irc_config['channels_to_join']:
-            print('Joining channel %s' % i)
-            self.join_channel(i, None)
-
     def dispatch(self):
         while True:
             try:

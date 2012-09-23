@@ -24,7 +24,15 @@ def numeric_375(server, parts, line):
     """MOTD - ignore"""
     pass
 numeric_372 = numeric_375
-numeric_376 = numeric_375
+
+def numeric_376(server, parts, line):
+    """End of MOTD - signifies connection startup is complete"""
+
+    print('Connection startup is complete')
+
+    for i in server.irc_config['channels_to_join']:
+        print('Joining channel %s' % i)
+        server.join_channel(i, None)
 
 _nick_num_patt = re.compile(r'([-_a-zA-Z]+)([0-9]+)')
 def numeric_433(server, parts, line):
