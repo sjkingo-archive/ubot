@@ -12,13 +12,15 @@ class ServerCallbacks(object):
         server.send('PONG %s' % parts[1][1:])
 
     def mode(self, server, parts, line):
-        modeline = parts[3][1:]
-        if parts[2] != server.irc_config['nick']:
+        if parts[2] == server.irc_config['nick']:
+            old_modes = set(server.user_modes) # need to copy this
+            util.update_modes(server.user_modes, parts[3][1:])
+            print('Updating user modes: %s -> %s' % (old_modes, server.user_modes))
+        elif parts[2] in server.joined_channels and server.irc_config['nick'] in parts[3:]:
+            set_by = util.UserMask(parts[0])
+            print('Channel mode set for us by %s' % set_by)
+        else:
             print('Modeline %s was not for us, ignoring' % modeline)
-            return
-        old_modes = set(server.user_modes) # need to copy this
-        util.update_modes(server.user_modes, modeline)
-        print('Updating user modes: %s -> %s' % (old_modes, server.user_modes))
 
     _nick_num_patt = re.compile(r'([-_a-zA-Z]+)([0-9]+)')
     def numeric_433(self, server, parts, line):
