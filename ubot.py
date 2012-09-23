@@ -20,7 +20,7 @@ class IRCBot(object):
     pending_channel_joins = {}
 
     def __init__(self, server='localhost', port=6667, nick='ubot', command_prefix='!',
-            authorized_users=set(), channels_to_join=set()):
+            authorized_users=set(), channels_to_join=set(), rejoin_on_kick=True):
         self.irc_config = {
                 'server': server,
                 'port': port,
@@ -30,6 +30,7 @@ class IRCBot(object):
                 'command_prefix': command_prefix,
                 'authorized_users': authorized_users,
                 'channels_to_join': channels_to_join,
+                'rejoin_on_kick': rejoin_on_kick,
         }
         self.init_callbacks()
 

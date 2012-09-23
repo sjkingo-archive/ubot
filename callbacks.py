@@ -108,9 +108,16 @@ def join(server, parts, line):
         del server.pending_channel_joins[chan]
 
 def kick(server, parts, line):
-    if parts[3] == server.irc_config['nick']:
-        chan = parts[2]
-        kicker = parts[0][1:]
-        msg = ' '.join(parts[4:])[1:]
-        print('Kicked from %s by %s (%s)' % (chan, kicker, msg))
-        server.joined_channels.remove(chan)
+    if parts[3] != server.irc_config['nick']:
+        # not us, ignore
+        return
+
+    chan = parts[2]
+    kicker = parts[0][1:]
+    msg = ' '.join(parts[4:])[1:]
+    print('Kicked from %s by %s (%s)' % (chan, kicker, msg))
+    server.joined_channels.remove(chan)
+
+    if server.irc_config['rejoin_on_kick']:
+        print('rejoin_on_kick is set, rejoining %s' % chan)
+        server.join_channel(chan, None)
