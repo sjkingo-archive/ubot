@@ -90,3 +90,10 @@ class ServerCallbacks(object):
             msg = ' '.join(parts[4:])[1:]
             print('Kicked from %s by %s (%s)' % (chan, kicker, msg))
             server.joined_channels.remove(chan)
+
+    def numeric_001(self, server, parts, line):
+        """Server connecting info"""
+        pass
+    numeric_002 = numeric_001
+    numeric_003 = numeric_001
+    numeric_004 = numeric_001
