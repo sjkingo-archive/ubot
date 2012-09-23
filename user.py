@@ -5,5 +5,6 @@ def test(server, req, *args):
 
 def reload(server, req):
     mods = server.init_callbacks()
-    server.send_privmsg(req['nick'], 'Reloaded modules %s' % mods)
-    print('Reloaded modules %s as requested by %s' % (mods, req['nick']))
+    server.send_privmsg(req['nick'], 'Reloaded the following modules:')
+    for m in mods:
+        server.send_privmsg(req['nick'], '   %s' % m)
