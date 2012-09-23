@@ -20,7 +20,7 @@ class IRCBot(object):
     pending_channel_joins = {}
 
     def __init__(self, server='localhost', port=6667, nick='ubot', command_prefix='!',
-            authorized_users=set()):
+            authorized_users=set(), channels_to_join=set()):
         self.irc_config = {
                 'server': server,
                 'port': port,
@@ -29,6 +29,7 @@ class IRCBot(object):
                 'name': 'ubot v%s' % VERSION,
                 'command_prefix': command_prefix,
                 'authorized_users': authorized_users,
+                'channels_to_join': channels_to_join,
         }
         self.init_callbacks()
 
@@ -70,6 +71,10 @@ class IRCBot(object):
                 self.irc_config['nick'], self.irc_config['user'], self.irc_config['name']))
         self.change_nick(self.irc_config['nick'])
         self.send('USER %s 8 * :%s' % (self.irc_config['user'], self.irc_config['name']))
+
+        for i in self.irc_config['channels_to_join']:
+            print('Joining channel %s' % i)
+            self.join_channel(i, None)
 
     def dispatch(self):
         while True:

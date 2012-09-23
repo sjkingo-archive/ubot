@@ -94,7 +94,8 @@ def join(server, parts, line):
     if chan in server.pending_channel_joins:
         nicks = server.pending_channel_joins[chan]
         for n in nicks:
-            server.send_privmsg(n, 'I have now joined %s' % chan)
+            if n is not None:
+                server.send_privmsg(n, 'I have now joined %s' % chan)
         server.joined_channels.add(chan)
         del server.pending_channel_joins[chan]
 
