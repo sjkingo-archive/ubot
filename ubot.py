@@ -39,7 +39,7 @@ class IRCBot(object):
         return [callbacks, user_callbacks]
 
     def send(self, line):
-        print(' >> %s' % line)
+        puts(colored.cyan('>> %s' % line))
         print(line, end='\r\n', file=self.fp)
 
     def readline(self):
