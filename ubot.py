@@ -1,5 +1,5 @@
 from __future__ import print_function
-from clint.textui import puts, colored
+from clint.textui import puts, colored, indent
 import re
 import socket
 
@@ -18,7 +18,8 @@ class IRCBot(object):
     failed_nickchanges = 0
     server_supports = []
 
-    def __init__(self, server='localhost', port=6667, nick='ubot', command_prefix='!'):
+    def __init__(self, server='localhost', port=6667, nick='ubot', command_prefix='!',
+            authorized_users=set()):
         self.irc_config = {
                 'server': server,
                 'port': port,
@@ -26,9 +27,14 @@ class IRCBot(object):
                 'user': nick,
                 'name': 'ubot',
                 'command_prefix': command_prefix,
+                'authorized_users': authorized_users,
         }
         self.init_callbacks()
         print('ubot v%s starting up' % VERSION)
+        print('Authorized users of this bot are:')
+        for i in self.irc_config['authorized_users']:
+            with indent(4):
+                puts(i)
 
     def init_callbacks(self):
         if self.server_callbacks is not None:
@@ -105,6 +111,7 @@ class IRCBot(object):
         callback = getattr(user_callbacks, cmd, None)
         if callback is not None:
             req = { 'nick': nick,
+                    'usermask': '%s!%s@%s' % (nick, user, host),
                     'msg': msg }
             try:
                 callback(self, req, *args)

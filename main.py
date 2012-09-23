@@ -3,7 +3,7 @@
 import ubot
 
 def main():
-    bot = ubot.IRCBot()
+    bot = ubot.IRCBot(authorized_users=set(['sam!sam@127.0.0.1']))
     bot.connect()
     bot.dispatch()
 
