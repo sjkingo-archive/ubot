@@ -17,8 +17,24 @@ def update_modes(mode_set, line):
             else:
                 mode_set.remove(i)
 
+class ServerMask(object):
+    def __init__(self, mask):
+        self.hostname = mask
+        if mask[0] == ':':
+            self.hostname = self.hostname[1:]
+
+    def __str__(self):
+        return self.hostname
+
+    def __repr__(self):
+        return '<ServerMask %s>' % self.hostname
+
 class UserMask(object):
     def __init__(self, mask):
+        if '!' not in mask and '@' not in mask:
+            # probably a server mask
+            raise TypeError('Not a usermask')
+
         parts = mask.split('!')
         self.nick = parts[0]
         if self.nick[0] == ':':

@@ -67,14 +67,22 @@ def ping(server, parts, line):
 
 def mode(server, parts, line):
     if parts[2] == server.irc_config['nick']:
+        # bot has had its mode changed
         old_modes = set(server.user_modes) # need to copy this
         util.update_modes(server.user_modes, parts[3][1:])
         print('Updating user modes: %s -> %s' % (old_modes, server.user_modes))
     elif parts[2] in server.joined_channels and server.irc_config['nick'] in parts[3:]:
+        # bot has been given a mode on a channel
         set_by = util.UserMask(parts[0])
         print('Channel mode set for us by %s' % set_by)
+    elif parts[2] in server.joined_channels and server.irc_config['nick'] not in parts[3:]:
+        # channel mode has been set
+        set_by = util.ServerMask(parts[0])
+        channel = parts[2]
+        mode = parts[3]
+        print('Channel %s mode has been changed to %s by %s' % (channel, mode, set_by))
     else:
-        print('Modeline %s was not for us, ignoring' % modeline)
+        print('Unknown modeline %s, ignoring' % ' '.join(parts[1:]))
 
 def notice(server, parts, line):
     l = line.split(':***')
