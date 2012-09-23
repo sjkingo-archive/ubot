@@ -63,3 +63,5 @@ class ServerCallbacks(object):
         nick, user, host = util.explode_from(parts[0])
         msg = ' '.join(parts[3:])[1:]
         puts(colored.yellow('%s <%s@%s> %s' % (now, nick, host, msg)))
+        if msg[0] == server.irc_config['command_prefix']:
+            server.handle_user_cmd(nick, user, host, msg)

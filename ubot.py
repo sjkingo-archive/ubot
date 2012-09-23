@@ -4,6 +4,7 @@ import re
 import socket
 
 import callbacks
+import user as user_callbacks
 
 VERSION = '0.1'
 
@@ -17,13 +18,14 @@ class IRCBot(object):
     failed_nickchanges = 0
     server_supports = []
 
-    def __init__(self, server='localhost', port=6667, nick='ubot'):
+    def __init__(self, server='localhost', port=6667, nick='ubot', command_prefix='!'):
         self.irc_config = {
                 'server': server,
                 'port': port,
                 'nick': nick,
                 'user': nick,
                 'name': 'ubot',
+                'command_prefix': command_prefix,
         }
         self.init_callbacks()
         print('ubot v%s starting up' % VERSION)
@@ -33,6 +35,8 @@ class IRCBot(object):
             del self.server_callbacks
             reload(callbacks)
         self.server_callbacks = callbacks.ServerCallbacks()
+        reload(user_callbacks)
+        return [callbacks, user_callbacks]
 
     def send(self, line):
         print(' >> %s' % line)
@@ -93,3 +97,27 @@ class IRCBot(object):
             callback(self, parts, line)
         else:
             puts(colored.red('Unhandled %s << %s' % (key, line)))
+
+    def handle_user_cmd(self, nick, user, host, msg):
+        msg_parts = msg[1:].split(' ')
+        cmd = msg_parts[0].lower()
+        args = msg_parts[1:]
+        callback = getattr(user_callbacks, cmd, None)
+        if callback is not None:
+            req = { 'nick': nick,
+                    'msg': msg }
+            try:
+                callback(self, req, *args)
+            except TypeError, e:
+                if str(e).startswith('%s() takes exactly' % cmd):
+                    m = '%s%s %s' % (self.irc_config['command_prefix'], cmd, 
+                            ' '.join(str(e).split(' ')[1:]))
+                    self.send_privmsg(nick, m)
+                else:
+                    # something else other than invalid args
+                    raise
+        else:
+            self.send_privmsg(nick, '%s%s is not a valid command' % (self.irc_config['command_prefix'], cmd))
+
+    def send_privmsg(self, nick, msg):
+        self.send(':%s PRIVMSG %s :%s' % (self.irc_config['nick'], nick, msg))
