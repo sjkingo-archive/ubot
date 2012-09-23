@@ -20,3 +20,12 @@ def authlist(server, req):
         else:
             suffix = ''
         server.send_privmsg(req['nick'], '   %s%s' % (i, suffix))
+
+@restricted
+def quit(server, req, *msg):
+    server.send_privmsg(req['nick'], 'Quitting on your request. Goodbye.')
+    l = list(msg)
+    if len(l) == 0:
+        server.quit()
+    else:
+        server.quit(msg=' '.join(l))
