@@ -17,16 +17,22 @@ def update_modes(mode_set, line):
             else:
                 mode_set.remove(i)
 
-def explode_from(f):
-    """Explodes a from field in the form of ':nick!~user@host' into a tuple
-    of the form (nick, user, host)"""
-    parts = f.split('!')
-    nick = parts[0][1:]
-    user = parts[1].split('@')[0]
-    if user[0] == '~':
-        user = user[1:]
-    host = parts[1].split('@')[1]
-    return (nick, user, host)
+class UserMask(object):
+    def __init__(self, mask):
+        parts = mask.split('!')
+        self.nick = parts[0]
+        if self.nick[0] == ':':
+            self.nick = self.nick[1:]
+        self.username = parts[1].split('@')[0]
+        if self.username[0] == '~':
+            self.username = self.username[1:]
+        self.hostname = parts[1].split('@')[1]
+
+    def __str__(self):
+        return '%s!%s@%s' % (self.nick, self.username, self.hostname)
+
+    def __repr__(self):
+        return '<UserMask %s>' % str(self)
 
 def restricted(func):
     def _check_authorized(server, req, *args):

@@ -60,7 +60,7 @@ class ServerCallbacks(object):
 
     def privmsg(self, server, parts, line):
         now = datetime.datetime.now().strftime('%H:%M')
-        nick, user, host = util.explode_from(parts[0])
+        msg_from = util.UserMask(parts[0])
         location = parts[2]
         if location[0] in ['&', '#']:
            # channel message
@@ -68,9 +68,9 @@ class ServerCallbacks(object):
         else:
             suffix = ''
         msg = ' '.join(parts[3:])[1:]
-        puts(colored.yellow('%s <%s@%s>%s %s' % (now, nick, host, suffix, msg)))
+        puts(colored.yellow('%s <%s@%s>%s %s' % (now, msg_from.nick, msg_from.hostname, suffix, msg)))
         if msg[0] == server.irc_config['command_prefix']:
-            server.handle_user_cmd(nick, user, host, msg)
+            server.handle_user_cmd(msg_from.nick, msg_from.username, msg_from.hostname, msg)
 
     def join(self, server, parts, line):
         chan = parts[2][1:]
