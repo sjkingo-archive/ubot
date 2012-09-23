@@ -90,7 +90,7 @@ def privmsg(server, parts, line):
 # --- Channel callbacks go here ---
 
 def join(server, parts, line):
-        chan = parts[2][1:]
+    chan = parts[2][1:]
     if chan in server.pending_channel_joins:
         nicks = server.pending_channel_joins[chan]
         for n in nicks:
