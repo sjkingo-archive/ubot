@@ -92,4 +92,4 @@ class IRCBot(object):
         if callback is not None:
             callback(self, parts, line)
         else:
-            puts(colored.red(' << %s' % line))
+            puts(colored.red('Unhandled %s << %s' % (key, line)))
