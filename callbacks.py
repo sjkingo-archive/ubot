@@ -74,3 +74,11 @@ class ServerCallbacks(object):
                 server.send_privmsg(n, 'I have now joined %s' % chan)
             server.joined_channels.add(chan)
             del server.pending_channel_joins[chan]
+
+    def kick(self, server, parts, line):
+        if parts[3] == server.irc_config['nick']:
+            chan = parts[2]
+            kicker = parts[0][1:]
+            msg = ' '.join(parts[4:])[1:]
+            print('Kicked from %s by %s (%s)' % (chan, kicker, msg))
+            server.joined_channels.remove(chan)
