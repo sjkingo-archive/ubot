@@ -3,7 +3,7 @@ from clint.textui import puts, colored, indent
 import re
 import socket
 
-import callbacks
+import callbacks as server_callbacks
 import user as user_callbacks
 
 VERSION = '0.1'
@@ -11,8 +11,6 @@ VERSION = '0.1'
 class IRCBot(object):
     sock = None
     fp = None
-
-    server_callbacks = None
 
     user_modes = set()
     failed_nickchanges = 0
@@ -50,12 +48,10 @@ class IRCBot(object):
         puts()
 
     def init_callbacks(self):
-        if self.server_callbacks is not None:
-            del self.server_callbacks
-            reload(callbacks)
-        self.server_callbacks = callbacks.ServerCallbacks()
-        reload(user_callbacks)
-        return [callbacks, user_callbacks]
+        mods = [server_callbacks, user_callbacks]
+        for i in mods:
+            reload(i)
+        return mods
 
     def send(self, line):
         puts(colored.cyan('>> %s' % line))
@@ -111,7 +107,7 @@ class IRCBot(object):
         if self._numeric_msg_patt.match(key):
             key = 'numeric_%s' % key
 
-        callback = getattr(self.server_callbacks, key.lower(), None)
+        callback = getattr(server_callbacks, key.lower(), None)
         if callback is not None:
             callback(self, parts, line)
         else:
