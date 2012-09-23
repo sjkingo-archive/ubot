@@ -30,11 +30,21 @@ class IRCBot(object):
                 'authorized_users': authorized_users,
         }
         self.init_callbacks()
+
         print('ubot v%s starting up' % VERSION)
+
         print('Authorized users of this bot are:')
         for i in self.irc_config['authorized_users']:
             with indent(4):
                 puts(i)
+
+        print('Legend for colour coded text:')
+        with indent(4):
+            puts(colored.cyan('Messages sent to server (cyan)'))
+            puts(colored.red('Unimplemented responses (red)'))
+            puts(colored.yellow('Private messages (yellow)'))
+            puts(colored.blue('Server messages (blue)'))
+        puts()
 
     def init_callbacks(self):
         if self.server_callbacks is not None:
