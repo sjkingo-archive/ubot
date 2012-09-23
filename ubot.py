@@ -65,7 +65,9 @@ class IRCBot(object):
         self.sock = socket.create_connection(
                 (self.irc_config['server'], self.irc_config['port']))
         self.fp = self.sock.makefile('rw', 0)
-        print('Connected to %s:%d' % (self.irc_config['server'], self.irc_config['port']))
+        print('Connected to %s:%d, registering as %s!%s (%s)' % 
+                (self.irc_config['server'], self.irc_config['port'], 
+                self.irc_config['nick'], self.irc_config['user'], self.irc_config['name']))
         self.change_nick(self.irc_config['nick'])
         self.send('USER %s 8 * :%s' % (self.irc_config['user'], self.irc_config['name']))
 
