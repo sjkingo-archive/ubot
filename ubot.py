@@ -26,7 +26,7 @@ class IRCBot(object):
                 'port': port,
                 'nick': nick,
                 'user': nick,
-                'name': 'ubot',
+                'name': 'ubot v%s' % VERSION,
                 'command_prefix': command_prefix,
                 'authorized_users': authorized_users,
         }
