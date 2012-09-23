@@ -29,3 +29,17 @@ def quit(server, req, *msg):
         server.quit()
     else:
         server.quit(msg=' '.join(l))
+
+@restricted
+def join(server, req, chan):
+    if chan[0] not in ['#', '&']:
+        server.send_privmsg(req['nick'], 'Please specify channel name correctly (missing #/& prefix)')
+        return
+    if chan in server.joined_channels:
+        server.send_privmsg(req['nick'], 'I am already joined to %s' % chan)
+        return
+    if chan in server.pending_channel_joins:
+        server.send_privmsg(req['nick'], 'I am already trying to join %s' % chan)
+        return
+    print('Joining channel %s at the request of %s' % (chan, req['nick']))
+    server.join_channel(chan, req['nick'])

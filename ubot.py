@@ -18,6 +18,9 @@ class IRCBot(object):
     failed_nickchanges = 0
     server_supports = []
 
+    joined_channels = set()
+    pending_channel_joins = {}
+
     def __init__(self, server='localhost', port=6667, nick='ubot', command_prefix='!',
             authorized_users=set()):
         self.irc_config = {
@@ -138,3 +141,10 @@ class IRCBot(object):
 
     def send_privmsg(self, nick, msg):
         self.send(':%s PRIVMSG %s :%s' % (self.irc_config['nick'], nick, msg))
+
+    def join_channel(self, chan, requester):
+        self.send('JOIN %s' % chan)
+        if chan not in self.pending_channel_joins:
+            self.pending_channel_joins[chan] = []
+        self.pending_channel_joins[chan].append(requester)
+        # we need to wait for a response from the server before confirming

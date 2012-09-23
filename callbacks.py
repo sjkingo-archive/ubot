@@ -65,3 +65,12 @@ class ServerCallbacks(object):
         puts(colored.yellow('%s <%s@%s> %s' % (now, nick, host, msg)))
         if msg[0] == server.irc_config['command_prefix']:
             server.handle_user_cmd(nick, user, host, msg)
+
+    def join(self, server, parts, line):
+        chan = parts[2][1:]
+        if chan in server.pending_channel_joins:
+            nicks = server.pending_channel_joins[chan]
+            for n in nicks:
+                server.send_privmsg(n, 'I have now joined %s' % chan)
+            server.joined_channels.add(chan)
+            del server.pending_channel_joins[chan]
