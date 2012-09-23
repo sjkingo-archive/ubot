@@ -34,7 +34,7 @@ class IRCBot(object):
 
         print('ubot v%s starting up' % VERSION)
 
-        print('Authorized users of this bot are:')
+        print('Authorized users of this bot are (send bot !authlist for on-network list):')
         for i in self.irc_config['authorized_users']:
             with indent(4):
                 puts(i)
