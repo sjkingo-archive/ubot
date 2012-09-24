@@ -1,9 +1,8 @@
 import datetime
 import re
-from clint.textui import puts, colored
+from clint.textui import colored
 
-import util
-
+from util import *
 
 # --- Numeric callbacks go here ---
 
@@ -18,7 +17,7 @@ def numeric_005(server, parts, line):
     """Server supports"""
     supports = line.split(' :are')[0].split(' ')[3:]
     server.server_supports.append(supports)
-    puts(colored.blue('This server supports: %s' % supports))
+    pprint('This server supports: %s' % supports)
 
 def numeric_375(server, parts, line):
     """MOTD - ignore"""
@@ -28,10 +27,10 @@ numeric_372 = numeric_375
 def numeric_376(server, parts, line):
     """End of MOTD - signifies connection startup is complete"""
 
-    print('Connection startup is complete')
+    pprint('Connection startup is complete')
 
     for i in server.irc_config['channels_to_join']:
-        print('Joining channel %s' % i)
+        pprint('Joining channel %s' % i)
         server.join_channel(i, None)
 
 _nick_num_patt = re.compile(r'([-_a-zA-Z]+)([0-9]+)')
@@ -42,7 +41,7 @@ def numeric_433(server, parts, line):
     server.failed_nickchanges += 1
     if server.failed_nickchanges > 4:
         # stop repeated loops
-        print('Too many failed NICK changes, quitting')
+        pprint('Too many failed NICK changes, quitting')
         server.quit(graceful=False)
 
     current = server.irc_config['nick']
@@ -53,7 +52,7 @@ def numeric_433(server, parts, line):
         prefix = m.groups()[0]
         suffix = int(m.groups()[1]) + 1
         new_nick = '%s%d' % (prefix, suffix)
-    print('Server reports nick %s is in use, trying %s' % (current, new_nick))
+    pprint('Server reports nick %s is in use, trying %s' % (current, new_nick))
     server.change_nick(new_nick)
 
 
@@ -69,28 +68,27 @@ def mode(server, parts, line):
     if parts[2] == server.irc_config['nick']:
         # bot has had its mode changed
         old_modes = set(server.user_modes) # need to copy this
-        util.update_modes(server.user_modes, parts[3][1:])
-        print('Updating user modes: %s -> %s' % (old_modes, server.user_modes))
+        update_modes(server.user_modes, parts[3][1:])
+        pprint('Updating user modes: %s -> %s' % (old_modes, server.user_modes))
     elif parts[2] in server.joined_channels and server.irc_config['nick'] in parts[3:]:
         # bot has been given a mode on a channel
-        set_by = util.UserMask(parts[0])
-        print('Channel mode set for us by %s' % set_by)
+        set_by = UserMask(parts[0])
+        pprint('Channel mode set for us by %s' % set_by)
     elif parts[2] in server.joined_channels and server.irc_config['nick'] not in parts[3:]:
         # channel mode has been set
-        set_by = util.ServerMask(parts[0])
+        set_by = ServerMask(parts[0])
         channel = parts[2]
         mode = parts[3]
-        print('Channel %s mode has been changed to %s by %s' % (channel, mode, set_by))
+        pprint('Channel %s mode has been changed to %s by %s' % (channel, mode, set_by))
     else:
-        print('Unknown modeline %s, ignoring' % ' '.join(parts[1:]))
+        pprint('Unknown modeline %s, ignoring' % ' '.join(parts[1:]))
 
 def notice(server, parts, line):
     l = line.split(':***')
-    puts(colored.blue('Server notice: %s' % l[1]))
+    pprint('Server notice: %s' % l[1])
 
 def privmsg(server, parts, line):
-    now = datetime.datetime.now().strftime('%H:%M')
-    msg_from = util.UserMask(parts[0])
+    msg_from = UserMask(parts[0])
     location = parts[2]
     if location[0] in ['&', '#']:
        # channel message
@@ -98,7 +96,7 @@ def privmsg(server, parts, line):
     else:
         suffix = ''
     msg = ' '.join(parts[3:])[1:]
-    puts(colored.yellow('%s <%s@%s>%s %s' % (now, msg_from.nick, msg_from.hostname, suffix, msg)))
+    pprint(colored.yellow('<%s@%s>%s %s' % (msg_from.nick, msg_from.hostname, suffix, msg)))
     if msg[0] == server.irc_config['command_prefix']:
         server.handle_user_cmd(msg_from.nick, msg_from.username, msg_from.hostname, msg)
 
@@ -123,9 +121,9 @@ def kick(server, parts, line):
     chan = parts[2]
     kicker = parts[0][1:]
     msg = ' '.join(parts[4:])[1:]
-    print('Kicked from %s by %s (%s)' % (chan, kicker, msg))
+    pprint('Kicked from %s by %s (%s)' % (chan, kicker, msg))
     server.joined_channels.remove(chan)
 
     if server.irc_config['rejoin_on_kick']:
-        print('rejoin_on_kick is set, rejoining %s' % chan)
+        pprint('rejoin_on_kick is set, rejoining %s' % chan)
         server.join_channel(chan, None)

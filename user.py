@@ -1,4 +1,4 @@
-from util import restricted
+from util import restricted, pprint
 
 def test(server, req, *args):
     server.send_privmsg(req['nick'],
@@ -41,5 +41,5 @@ def join(server, req, chan):
     if chan in server.pending_channel_joins:
         server.send_privmsg(req['nick'], 'I am already trying to join %s' % chan)
         return
-    print('Joining channel %s at the request of %s' % (chan, req['nick']))
+    pprint('Joining channel %s at the request of %s' % (chan, req['nick']))
     server.join_channel(chan, req['nick'])

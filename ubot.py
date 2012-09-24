@@ -1,10 +1,11 @@
 from __future__ import print_function
-from clint.textui import puts, colored, indent
+from clint.textui import colored
 import re
 import socket
 
 import callbacks as server_callbacks
 import user as user_callbacks
+from util import pprint
 
 VERSION = '0.1'
 
@@ -34,20 +35,17 @@ class IRCBot(object):
         }
         self.init_callbacks()
 
-        print('ubot v%s starting up' % VERSION)
+        pprint('ubot v%s starting up' % VERSION)
 
-        print('Authorized users of this bot are (send bot !authlist for on-network list):')
+        pprint('Authorized users of this bot are (send bot !authlist for on-network list):')
         for i in self.irc_config['authorized_users']:
-            with indent(4):
-                puts(i)
+            pprint(i, indent=4)
 
-        print('Legend for colour coded text:')
-        with indent(4):
-            puts(colored.cyan('Messages sent to server (cyan)'))
-            puts(colored.red('Unimplemented responses (red)'))
-            puts(colored.yellow('Private messages (yellow)'))
-            puts(colored.blue('Server messages (blue)'))
-        puts()
+        pprint('Legend for colour coded text:')
+        pprint('Bot messages (white)', indent=4)
+        pprint(colored.cyan('Messages sent to server (cyan)'), indent=4)
+        pprint(colored.red('Unimplemented responses (red)'), indent=4)
+        pprint(colored.yellow('Private messages (yellow)'), indent=4)
 
     def init_callbacks(self):
         mods = [server_callbacks, user_callbacks]
@@ -56,7 +54,7 @@ class IRCBot(object):
         return mods
 
     def send(self, line):
-        puts(colored.cyan('>> %s' % line))
+        pprint(colored.cyan('>> %s' % line))
         print(line, end='\r\n', file=self.fp)
 
     def readline(self):
@@ -67,7 +65,7 @@ class IRCBot(object):
         self.sock = socket.create_connection(
                 (self.irc_config['server'], self.irc_config['port']))
         self.fp = self.sock.makefile('rw', 0)
-        print('Connected to %s:%d, registering as %s!%s (%s)' % 
+        pprint('Connected to %s:%d, registering as %s!%s (%s)' % 
                 (self.irc_config['server'], self.irc_config['port'], 
                 self.irc_config['nick'], self.irc_config['user'], self.irc_config['name']))
         self.change_nick(self.irc_config['nick'])
@@ -78,7 +76,7 @@ class IRCBot(object):
             try:
                 l = self.readline()
             except socket.timeout:
-                print('Socket timeout (server not responding), quitting')
+                pprint('Socket timeout (server not responding), quitting')
                 self.quit(graceful=False) # don't send quit message
             except KeyboardInterrupt:
                 self.quit(msg='I was sent SIGINT')
@@ -92,13 +90,13 @@ class IRCBot(object):
     def quit(self, graceful=True, msg='Goodbye'):
         if graceful:
             self.send('QUIT :%s' % msg)
-            print('Quitting (%s)' % msg)
+            pprint('Quitting (%s)' % msg)
         exit(0)
 
     _numeric_msg_patt = re.compile(r'[0-9]{3}')
     def _handle_line(self, line):
         if len(line) == 0:
-            print('Server closed connection, quitting')
+            pprint('Server closed connection, quitting')
             self.quit(graceful=False) # don't send quit message
 
         parts = line.split(' ')
@@ -115,7 +113,7 @@ class IRCBot(object):
         if callback is not None:
             callback(self, parts, line)
         else:
-            puts(colored.red('Unhandled %s << %s' % (key, line)))
+            pprint(colored.red('Unhandled %s << %s' % (key, line)))
 
     def handle_user_cmd(self, nick, user, host, msg):
         msg_parts = msg[1:].split(' ')

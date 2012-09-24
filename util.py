@@ -1,3 +1,6 @@
+from __future__ import print_function
+from clint.textui import colored
+import datetime
 
 def update_modes(mode_set, line):
     """Parses the MODE line given and updates the mode_set - note this modifies
@@ -57,3 +60,11 @@ def restricted(func):
         else:
             server.send_privmsg(req['nick'], 'Access denied: you are not on the authorized users list.')
     return _check_authorized
+
+def pprint(line, indent=0):
+    now = datetime.datetime.now().strftime('%H:%M:%S')
+    prefix = colored.magenta(str(now) + ':') + ' '
+    print(prefix, end='')
+    if indent > 0:
+        print(' ' * indent, end='')
+    print(line)
